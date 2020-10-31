@@ -25,7 +25,7 @@ public abstract class AbstractAuthReqHandler extends ChannelInboundHandlerAdapte
 
             channelHandlerContext.fireChannelRead(o);
             //校验成功 移除
-            channelHandlerContext.pipeline().remove(AbstractAuthReqHandler.class);
+            channelHandlerContext.pipeline().remove(this);
         }
     }
 

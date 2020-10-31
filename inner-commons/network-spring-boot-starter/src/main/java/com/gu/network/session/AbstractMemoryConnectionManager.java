@@ -1,9 +1,11 @@
 package com.gu.network.session;
 
 
+import com.gu.network.server.Server;
 import io.netty.channel.Channel;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import java.util.Map;
@@ -20,8 +22,11 @@ public abstract class AbstractMemoryConnectionManager implements ConnectionManag
 
     private static final Map<String, Connection> CONNECTION_HASH_MAP = new ConcurrentHashMap<>();
 
+    @Autowired
+    private Server server;
+
     @Override
-    public void add(Channel channel, String drcId, String serverAddress, Integer serverPort) {
+    public void add(Channel channel, String drcId) {
         if (drcId == null || channel == null) {
             return;
         }
@@ -29,8 +34,8 @@ public abstract class AbstractMemoryConnectionManager implements ConnectionManag
                 .drcId(drcId)
                 .channelId(channel.id().asLongText())
                 .channel(channel)
-                .serverAddress(serverAddress)
-                .serverPort(serverPort)
+                .serverAddress(server.attribute().getAddress())
+                .serverPort(server.attribute().getPort())
                 .build();
 
         CONNECTION_HASH_MAP.put(drcId, connection);
@@ -39,7 +44,7 @@ public abstract class AbstractMemoryConnectionManager implements ConnectionManag
     }
 
     @Override
-    public void update(Channel channel, String drcId, String serverAddress, Integer serverPort) {
+    public void update(Channel channel, String drcId) {
         if (drcId == null || channel == null) {
             return;
         }
@@ -57,8 +62,8 @@ public abstract class AbstractMemoryConnectionManager implements ConnectionManag
                     .channelId(channelId)
                     .channel(channel)
                     .drcId(drcId)
-                    .serverAddress(serverAddress)
-                    .serverPort(serverPort)
+                    .serverAddress(server.attribute().getAddress())
+                    .serverPort(server.attribute().getPort())
                     .conTime(System.currentTimeMillis())
                     .build();
 
@@ -72,6 +77,7 @@ public abstract class AbstractMemoryConnectionManager implements ConnectionManag
         Connection connection = this.get(drcId);
         if (connection != null && org.apache.commons.lang3.StringUtils.equals(connection.getChannelId(), channel.id().asLongText())) {
             CONNECTION_HASH_MAP.remove(drcId);
+            ConnectionUtil.markOffline(channel);
         }
     }
 
@@ -106,11 +112,11 @@ public abstract class AbstractMemoryConnectionManager implements ConnectionManag
 
         Connection connection = get(drcId);
 
-        if (connection != null) {
+        if (connection != null && ConnectionUtil.hasLogin(connection.getChannel())) {
             //noinspection unchecked
             connection.getChannel().writeAndFlush(message).addListeners(future -> {
                 if (!future.isSuccess()) {
-                    this.retrySendMessage(drcId, message);
+                    this.retrySendMessage(connection, drcId, message);
                 }
             });
         } else {
@@ -132,8 +138,10 @@ public abstract class AbstractMemoryConnectionManager implements ConnectionManag
 
     /**
      * 终端在线下发失败，重试
-     * @param drcId 终端号
-     * @param message 消息体
+     *
+     * @param connection 连接参数
+     * @param drcId      终端号
+     * @param message    消息体
      */
-    abstract void retrySendMessage(String drcId, Object message);
+    abstract void retrySendMessage(Connection connection, String drcId, Object message);
 }

@@ -22,7 +22,7 @@ public abstract class AbstractConnectionHandler extends ChannelInboundHandlerAda
 
         channelHandlerContext.fireChannelRead(o);
         //第一次连接初始化
-        channelHandlerContext.pipeline().remove(AbstractConnectionHandler.class);
+        channelHandlerContext.pipeline().remove(this);
 
     }
 

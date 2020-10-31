@@ -16,15 +16,4 @@ public class DefaultMessageHandler extends AbstractMessageHandler {
     protected void doChannelRead0(ChannelHandlerContext channelHandlerContext, Message.ReceivedMessage defaultPacketMessage) throws Exception {
         log.info("You should extends com.gu.network.handlers.MessageHandler and override the doChannelRead0 method to add the active channel:{}", channelHandlerContext);
     }
-
-    @Override
-    protected void doChannelInactive(ChannelHandlerContext ctx) throws Exception {
-        log.info("You should extends com.gu.network.handlers.MessageHandler and override doChannelInactivo method to add the active channel:{}", ctx);
-    }
-
-    @Override
-    protected void doExceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        log.info("You should extends com.gu.network.handlers.MessageHandler and override doExceptionCaught method to add the active channel:{}", ctx);
-    }
-
 }

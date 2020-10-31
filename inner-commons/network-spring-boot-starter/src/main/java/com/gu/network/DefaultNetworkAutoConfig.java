@@ -89,4 +89,11 @@ public class DefaultNetworkAutoConfig {
     public AbstractExceptionHandler exceptionHandler() {
         return new DefaultExceptionHandler();
     }
+
+
+    @Bean
+    @ConditionalOnMissingBean(AbstractInactiveHandler.class)
+    public AbstractInactiveHandler inactiveHandler() {
+        return new DefaultInactiveHandler();
+    }
 }

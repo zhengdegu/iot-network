@@ -9,7 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DefaultConnectionManager  extends AbstractMemoryConnectionManager{
     @Override
-    void retrySendMessage(String drcId, Object message) {
+    void retrySendMessage(Connection connection,String drcId, Object message) {
 
     }
 }

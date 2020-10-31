@@ -9,18 +9,14 @@ public interface ConnectionManager {
      *
      * @param channel
      * @param drcId
-     * @param serverAddress
-     * @param serverPort
      */
-    void add(Channel channel, String drcId, String serverAddress, Integer serverPort);
+    void add(Channel channel, String drcId);
 
     /**
      * @param channel
-     * @param userverPort
-     * @param serverAddress
-     * @param serverPort
+     * @param drcId
      */
-    void update(Channel channel, String userverPort, String serverAddress, Integer serverPort);
+    void update(Channel channel, String drcId);
 
     /**
      * 移除channel

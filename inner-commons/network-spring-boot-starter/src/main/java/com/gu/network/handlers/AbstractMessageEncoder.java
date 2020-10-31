@@ -12,11 +12,12 @@ import io.netty.handler.codec.MessageToByteEncoder;
  * @date 2019/8/26 15:11
  */
 @ChannelHandler.Sharable
-public abstract class AbstractMessageEncoder extends MessageToByteEncoder {
+public abstract class AbstractMessageEncoder extends MessageToByteEncoder<Object> {
 
     @Override
     protected void encode(ChannelHandlerContext channelHandlerContext, Object object, ByteBuf byteBuf) throws Exception {
-        this.doEncode(object, byteBuf);
+        byte[] bytes = this.doEncode(object, byteBuf);
+        byteBuf.writeBytes(bytes);
     }
 
     /**

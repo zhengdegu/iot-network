@@ -14,18 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 @ChannelHandler.Sharable
 public abstract class AbstractMessageHandler extends SimpleChannelInboundHandler<com.gu.network.message.Message.ReceivedMessage> {
 
-    @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        this.doChannelInactive(ctx);
-        ctx.fireChannelInactive();
-    }
-
-    @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-
-        this.doExceptionCaught(ctx, cause);
-        ctx.fireExceptionCaught(cause);
-    }
 
 
     @Override
@@ -44,18 +32,4 @@ public abstract class AbstractMessageHandler extends SimpleChannelInboundHandler
      */
     protected abstract void doChannelRead0(ChannelHandlerContext channelHandlerContext, Message.ReceivedMessage defaultPacketMessage) throws Exception;
 
-    /**
-     * 关闭连接操作
-     * @param ctx 通道
-     * @throws Exception
-     */
-    protected abstract void doChannelInactive(ChannelHandlerContext ctx) throws Exception;
-
-    /**
-     * 异常操作
-     * @param ctx 通道
-     * @param cause 异常
-     * @throws Exception
-     */
-    protected abstract void doExceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception;
 }

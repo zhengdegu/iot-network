@@ -28,9 +28,10 @@ public abstract class AbstractServerChannelInitializer extends ChannelInitialize
     private AbstractConnectionHandler connectionHandler;
     @Autowired
     private AbstractMessageHandler messageHandler;
-
     @Autowired
     private AbstractExceptionHandler exceptionHandler;
+    @Autowired
+    private AbstractInactiveHandler inactiveHandler;
 
     public AbstractServerChannelInitializer(ServerProperties serverProperties) {
         this.readTimeout = serverProperties.getOfflineTimeout();
@@ -49,6 +50,7 @@ public abstract class AbstractServerChannelInitializer extends ChannelInitialize
         pipeline.addLast("connectionHandler", connectionHandler);
         pipeline.addLast("messageHandler", messageHandler);
         pipeline.addLast("exceptionHandler", exceptionHandler);
+        pipeline.addLast("inactiveHandler", inactiveHandler);
         this.doChannel(pipeline);
     }
 
