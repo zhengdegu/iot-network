@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package com.gu.network.message;
+option java_package = "com.gu.network.message";
+
+
+/**
+ * 上行消息定义
+ */
+message ReceivedMessage {
+
+    string key = 1;
+    int64 timestamp =2;
+    map<string,string> data =3;
+    bytes  message = 4;
+
+}
