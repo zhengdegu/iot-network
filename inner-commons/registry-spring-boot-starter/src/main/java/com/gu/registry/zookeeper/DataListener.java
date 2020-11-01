@@ -1,0 +1,9 @@
+package com.gu.registry.zookeeper;
+
+/**
+ * 2019-02-26
+ */
+public interface DataListener {
+
+    void dataChanged(String path, Object value, EventType eventType);
+}
