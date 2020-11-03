@@ -5,6 +5,9 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author FastG
  * @date 2020/11/1 13:41
@@ -20,6 +23,8 @@ public class URL {
     private String username;
     private String password;
     private String path = "/network";
+    private ZookeeperInstance instance = new ZookeeperInstance();
+
 
     public URL(String connectString, Integer timeout, Integer sessionExpireMs, String username, String password) {
         this.connectString = connectString;
@@ -38,4 +43,54 @@ public class URL {
                 + ":" + (password == null ? "" : password);
     }
 
+
+    public static class ZookeeperInstance {
+
+        private String id;
+
+        private String name;
+
+        private Map<String, String> metadata = new HashMap<>();
+
+        @SuppressWarnings("unused")
+        private ZookeeperInstance() {
+        }
+
+        public ZookeeperInstance(String id, String name, Map<String, String> metadata) {
+            this.id = id;
+            this.name = name;
+            this.metadata = metadata;
+        }
+
+        public String getId() {
+            return this.id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
+
+        public String getName() {
+            return this.name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public Map<String, String> getMetadata() {
+            return this.metadata;
+        }
+
+        public void setMetadata(Map<String, String> metadata) {
+            this.metadata = metadata;
+        }
+
+        @Override
+        public String toString() {
+            return "ZookeeperInstance{" + "id='" + this.id + '\'' + ", name='" + this.name
+                    + '\'' + ", metadata=" + this.metadata + '}';
+        }
+
+    }
 }

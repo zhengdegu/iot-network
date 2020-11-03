@@ -162,6 +162,11 @@ public abstract class AbstractZookeeperClient<TargetDataListener, TargetChildLis
         return doGetContent(path);
     }
 
+    @Override
+    public boolean checkExist(String path) {
+        return this.checkExists(path);
+    }
+
     protected abstract void doClose();
 
     protected abstract void createPersistent(String path);
