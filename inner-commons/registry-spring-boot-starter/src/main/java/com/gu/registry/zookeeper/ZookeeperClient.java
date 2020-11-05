@@ -64,7 +64,10 @@ public interface ZookeeperClient {
 
     void create(String path, String content, boolean ephemeral);
 
-    String getContent(String path);
+    void  create(String path,Object content,boolean ephemeral);
 
+    String getContentString(String path);
+
+    Object getContentObject(String path);
     boolean checkExist(String path);
 }

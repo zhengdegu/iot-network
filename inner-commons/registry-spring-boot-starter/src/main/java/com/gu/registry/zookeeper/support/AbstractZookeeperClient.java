@@ -155,11 +155,34 @@ public abstract class AbstractZookeeperClient<TargetDataListener, TargetChildLis
     }
 
     @Override
-    public String getContent(String path) {
+    public void create(String path, Object content, boolean ephemeral) {
+        if (checkExists(path)) {
+            delete(path);
+        }
+        int i = path.lastIndexOf('/');
+        if (i > 0) {
+            create(path.substring(0, i), false);
+        }
+        if (ephemeral) {
+            createEphemeral(path, content);
+        } else {
+            createPersistent(path, content);
+        }
+    }
+    @Override
+    public String getContentString(String path) {
         if (!checkExists(path)) {
             return null;
         }
-        return doGetContent(path);
+        return doGetContentString(path);
+    }
+
+    @Override
+    public Object getContentObject(String path) {
+        if (!checkExists(path)) {
+            return null;
+        }
+        return doGetContentObject(path);
     }
 
     @Override
@@ -175,7 +198,11 @@ public abstract class AbstractZookeeperClient<TargetDataListener, TargetChildLis
 
     protected abstract void createPersistent(String path, String data);
 
+    protected abstract void createPersistent(String path, Object data);
+
     protected abstract void createEphemeral(String path, String data);
+
+    protected abstract void createEphemeral(String path, Object data);
 
     protected abstract boolean checkExists(String path);
 
@@ -193,8 +220,9 @@ public abstract class AbstractZookeeperClient<TargetDataListener, TargetChildLis
 
     protected abstract void removeTargetChildListener(String path, TargetChildListener listener);
 
-    protected abstract String doGetContent(String path);
+    protected abstract String doGetContentString(String path);
 
+    protected abstract Object doGetContentObject(String path);
     /**
      * we invoke the zookeeper client to delete the node
      *

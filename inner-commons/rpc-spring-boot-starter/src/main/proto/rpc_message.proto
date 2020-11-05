@@ -1,0 +1,77 @@
+syntax = "proto3";
+
+import "google/protobuf/any.proto";
+import "google/protobuf/empty.proto";
+
+package com.gu.rpc;
+option java_package = "com.gu.rpc";
+
+/**
+ * 用于向终端下发指令的消息
+ */
+message SendRequest {
+    string id = 1;
+    sint32 version = 2;
+    bool raw = 3;
+    bytes payloads = 4;
+}
+
+enum ResponseCode {
+    /**
+     * 发送成功
+     */
+    SUCCESS = 0;
+    /*
+     * 终端已经离线
+     */
+    OFFLINE = 1;
+    /**
+     * 终端所在的节点已经掉线
+     */
+    NODE_OFFLINE = 2;
+    /**
+     * 终端在发送消息的时候刚好关闭连接
+     */
+    CHANNEL_CLOSED = 3;
+    /**
+     * 其他未知错误
+     */
+    FAILED = 4;
+}
+
+/**
+ * 终端下发指令的操作的反馈消息
+ */
+message SendResponse {
+    ResponseCode responseCode = 1;
+    string message = 2;
+}
+
+/**
+ * 关闭对应连接的请求
+ */
+message CloseRequest {
+    string id = 1;
+}
+
+message CloseResponse {
+    ResponseCode responseCode = 1;
+    string message = 2;
+}
+
+service ControlRPC {
+    /**
+     * 向终端发送消息的rpc
+     */
+    rpc streamSend(stream SendRequest) returns (stream SendResponse);
+
+    /**
+     * 关闭终端对应的连接的rpc请求
+     */
+    rpc streamClose(stream CloseRequest) returns (stream CloseResponse);
+
+    /**
+     * 扩展接口，可以接收任何信息，同时返回任何信息，可以自行扩展服务
+     */
+    rpc any(google.protobuf.Any) returns (google.protobuf.Any);
+}

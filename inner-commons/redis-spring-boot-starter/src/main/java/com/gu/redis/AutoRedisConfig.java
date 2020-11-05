@@ -6,10 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import com.gu.redis.service.RedisService;
 import com.gu.redis.service.impl.RedisServiceImpl;
-import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
@@ -32,8 +29,7 @@ import org.springframework.data.redis.serializer.RedisSerializer;
  * @author FastG
  * @date 2020/5/12 17:13
  */
-@Configuration
-@EnableConfigurationProperties({RedisProperties.class})
+
 public class AutoRedisConfig {
 
 

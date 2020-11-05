@@ -1,6 +1,7 @@
 package com.gu.registry.zookeeper.subscribe;
 
 import com.gu.registry.zookeeper.ChildListener;
+import com.gu.registry.zookeeper.DataListener;
 import com.gu.registry.zookeeper.ZookeeperClient;
 import com.gu.registry.zookeeper.ZookeeperTransporter;
 import com.gu.registry.zookeeper.properties.URL;
@@ -16,12 +17,12 @@ public class ZookeeperSubscribe implements SubscribeService {
 
     private final ZookeeperClient zookeeperClient;
 
-    private final ChildListener childListener;
+    private final DataListener  dataListener;
 
-    public ZookeeperSubscribe(URL url, ZookeeperTransporter zookeeperTransporter, ChildListener childListener) {
+    public ZookeeperSubscribe(URL url, ZookeeperTransporter zookeeperTransporter, DataListener dataListener) {
         this.url = url;
         this.zookeeperClient = zookeeperTransporter.connect(url);
-        this.childListener = childListener;
+        this.dataListener = dataListener;
     }
 
     @Override
@@ -40,12 +41,17 @@ public class ZookeeperSubscribe implements SubscribeService {
     }
 
     @Override
+    public ZookeeperClient getClient() {
+        return this.zookeeperClient;
+    }
+
+    @Override
     public void subscribe(URL url) {
-        zookeeperClient.addChildListener(url.getPath(), childListener);
+        zookeeperClient.addDataListener(url.getPath(),dataListener);
     }
 
     @Override
     public void unsubscribe(URL url) {
-        zookeeperClient.removeChildListener(url.getPath(),childListener);
+        zookeeperClient.removeDataListener(url.getPath(), dataListener);
     }
 }

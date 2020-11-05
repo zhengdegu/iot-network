@@ -351,6 +351,11 @@
 				<artifactId>grpc-stub</artifactId>
 				<version>${grpc.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>io.grpc</groupId>
+				<artifactId>grpc-services</artifactId>
+				<version>${grpc.version}</version>
+			</dependency>
 			<!-- zipkin 界面-->
 			<dependency>
 				<groupId>io.zipkin.java</groupId>

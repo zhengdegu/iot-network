@@ -8,6 +8,7 @@ import com.gu.registry.zookeeper.properties.URL;
 import com.gu.registry.zookeeper.support.AbstractZookeeperClient;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.api.CuratorWatcher;
@@ -21,6 +22,7 @@ import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
+import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -116,8 +118,41 @@ public class CuratorZookeeperClient extends AbstractZookeeperClient<CuratorZooke
     }
 
     @Override
+    protected void createPersistent(String path, Object data) {
+        byte[] dataBytes = SerializationUtils.serialize((Serializable) data);
+        try {
+            client.create().forPath(path, dataBytes);
+        } catch (KeeperException.NodeExistsException e) {
+            try {
+                client.setData().forPath(path, dataBytes);
+            } catch (Exception e1) {
+                throw new IllegalStateException(e.getMessage(), e1);
+            }
+        } catch (Exception e) {
+            throw new IllegalStateException(e.getMessage(), e);
+        }
+    }
+
+    @Override
     protected void createEphemeral(String path, String data) {
         byte[] dataBytes = data.getBytes(CHARSET);
+        try {
+            client.create().withMode(CreateMode.EPHEMERAL).forPath(path, dataBytes);
+        } catch (KeeperException.NodeExistsException e) {
+            log.warn("ZNode " + path + " already exists, since we will only try to recreate a node on a session expiration" +
+                    ", this duplication might be caused by a delete delay from the zk server, which means the old expired session" +
+                    " may still holds this ZNode and the server just hasn't got time to do the deletion. In this case, " +
+                    "we can just try to delete and create again.", e);
+            deletePath(path);
+            createEphemeral(path, data);
+        } catch (Exception e) {
+            throw new IllegalStateException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    protected void createEphemeral(String path, Object data) {
+        byte[] dataBytes = SerializationUtils.serialize((Serializable) data);
         try {
             client.create().withMode(CreateMode.EPHEMERAL).forPath(path, dataBytes);
         } catch (KeeperException.NodeExistsException e) {
@@ -203,10 +238,23 @@ public class CuratorZookeeperClient extends AbstractZookeeperClient<CuratorZooke
     }
 
     @Override
-    protected String doGetContent(String path) {
+    protected String doGetContentString(String path) {
         try {
             byte[] dataBytes = client.getData().forPath(path);
             return (dataBytes == null || dataBytes.length == 0) ? null : new String(dataBytes, CHARSET);
+        } catch (KeeperException.NoNodeException e) {
+            // ignore NoNode Exception.
+        } catch (Exception e) {
+            throw new IllegalStateException(e.getMessage(), e);
+        }
+        return null;
+    }
+
+    @Override
+    protected Object doGetContentObject(String path) {
+        try {
+            byte[] dataBytes = client.getData().forPath(path);
+            return (dataBytes == null || dataBytes.length == 0) ? null : SerializationUtils.deserialize(dataBytes);
         } catch (KeeperException.NoNodeException e) {
             // ignore NoNode Exception.
         } catch (Exception e) {

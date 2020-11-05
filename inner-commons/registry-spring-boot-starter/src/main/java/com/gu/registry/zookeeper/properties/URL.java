@@ -1,30 +1,33 @@
 package com.gu.registry.zookeeper.properties;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-import org.apache.commons.lang3.StringUtils;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
+import java.io.Serializable;
 
 /**
  * @author FastG
  * @date 2020/11/1 13:41
  */
-@Setter
-@Getter
-@AllArgsConstructor
-public class URL {
+@ConfigurationProperties(prefix = "spring.network.zookeeper")
+public class URL implements Serializable {
 
     private String connectString = "127.0.0.1:2181";
     private Integer timeout = 5 * 1000;
     private Integer sessionExpireMs = 60 * 1000;
     private String username;
     private String password;
-    private String path = "/network";
-    private ZookeeperInstance instance = new ZookeeperInstance();
+    private String path = "/network/cluster";
 
+    public URL(String connectString, Integer timeout, Integer sessionExpireMs, String username, String password, String path) {
+        this.connectString = connectString;
+        this.timeout = timeout;
+        this.sessionExpireMs = sessionExpireMs;
+        this.username = username;
+        this.password = password;
+        this.path = path;
+    }
 
     public URL(String connectString, Integer timeout, Integer sessionExpireMs, String username, String password) {
         this.connectString = connectString;
@@ -32,6 +35,10 @@ public class URL {
         this.username = username;
         this.timeout = timeout;
         this.sessionExpireMs = sessionExpireMs;
+    }
+
+    public String getConnectString() {
+        return connectString;
     }
 
     public String getAuthority() {
@@ -43,54 +50,48 @@ public class URL {
                 + ":" + (password == null ? "" : password);
     }
 
-
-    public static class ZookeeperInstance {
-
-        private String id;
-
-        private String name;
-
-        private Map<String, String> metadata = new HashMap<>();
-
-        @SuppressWarnings("unused")
-        private ZookeeperInstance() {
-        }
-
-        public ZookeeperInstance(String id, String name, Map<String, String> metadata) {
-            this.id = id;
-            this.name = name;
-            this.metadata = metadata;
-        }
-
-        public String getId() {
-            return this.id;
-        }
-
-        public void setId(String id) {
-            this.id = id;
-        }
-
-        public String getName() {
-            return this.name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public Map<String, String> getMetadata() {
-            return this.metadata;
-        }
-
-        public void setMetadata(Map<String, String> metadata) {
-            this.metadata = metadata;
-        }
-
-        @Override
-        public String toString() {
-            return "ZookeeperInstance{" + "id='" + this.id + '\'' + ", name='" + this.name
-                    + '\'' + ", metadata=" + this.metadata + '}';
-        }
-
+    public void setConnectString(String connectString) {
+        this.connectString = connectString;
     }
+
+    public Integer getTimeout() {
+        return timeout;
+    }
+
+    public void setTimeout(Integer timeout) {
+        this.timeout = timeout;
+    }
+
+    public Integer getSessionExpireMs() {
+        return sessionExpireMs;
+    }
+
+    public void setSessionExpireMs(Integer sessionExpireMs) {
+        this.sessionExpireMs = sessionExpireMs;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
 }

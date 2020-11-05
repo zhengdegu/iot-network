@@ -3,6 +3,7 @@ package com.gu.registry.zookeeper.registry;
 import com.gu.registry.zookeeper.ZookeeperClient;
 import com.gu.registry.zookeeper.ZookeeperTransporter;
 import com.gu.registry.zookeeper.properties.URL;
+import com.gu.registry.zookeeper.properties.ZooKeeperNodeInfo;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -13,23 +14,25 @@ import lombok.extern.slf4j.Slf4j;
 public class ZookeeperRegistry implements RegistryService {
 
     private final URL url;
+    private final ZooKeeperNodeInfo zooKeeperNodeInfo;
     private final ZookeeperClient zookeeperClient;
 
-    public ZookeeperRegistry(URL url, ZookeeperTransporter zookeeperTransporter) {
+    public ZookeeperRegistry(URL url, ZookeeperTransporter zookeeperTransporter, ZooKeeperNodeInfo zooKeeperNodeInfo) {
         this.url = url;
         zookeeperClient = zookeeperTransporter.connect(url);
+        this.zooKeeperNodeInfo = zooKeeperNodeInfo;
     }
 
     @Override
     public void register(URL url) {
-        if (url == null || url.getInstance() == null) {
+        if (url == null || zooKeeperNodeInfo == null) {
             throw new IllegalStateException("register instance is null");
         }
         try {
-            if (zookeeperClient.checkExist(url.getPath() + url.getInstance().getName())) {
-                throw new RuntimeException("Failed to register " + url + " to zookeeper " + url.getInstance().getName() + "is registered!");
+            if (zookeeperClient.checkExist(url.getPath() + zooKeeperNodeInfo.getId())) {
+                throw new RuntimeException("Failed to register " + url + " to zookeeper " + zooKeeperNodeInfo.getId() + "is registered!");
             }
-            zookeeperClient.create(url.getPath() + url.getInstance().getName(), url.getInstance().toString(), true);
+            zookeeperClient.create(url.getPath() + zooKeeperNodeInfo.getId(), zooKeeperNodeInfo.serialize(), true);
         } catch (Throwable e) {
             throw new RuntimeException("Failed to register " + url + " to zookeeper " + getUrl() + ", cause: " + e.getMessage(), e);
         }
@@ -37,12 +40,12 @@ public class ZookeeperRegistry implements RegistryService {
 
     @Override
     public void unregister(URL url) {
-        if (url == null || url.getInstance() == null) {
+        if (url == null || zooKeeperNodeInfo == null) {
             throw new IllegalStateException("register instance is null");
         }
         try {
-            if (zookeeperClient.checkExist(url.getPath() + url.getInstance().getName())) {
-                zookeeperClient.delete(url.getPath() + url.getInstance().getName());
+            if (zookeeperClient.checkExist(url.getPath() + zooKeeperNodeInfo.getId())) {
+                zookeeperClient.delete(url.getPath() + zooKeeperNodeInfo.getId());
             }
         } catch (Throwable e) {
             throw new RuntimeException("Failed to unregister " + url + ", cause: " + e.getMessage(), e);
@@ -51,7 +54,7 @@ public class ZookeeperRegistry implements RegistryService {
 
     @Override
     public URL getUrl() {
-        return null;
+        return this.url;
     }
 
     @Override
@@ -62,5 +65,10 @@ public class ZookeeperRegistry implements RegistryService {
     @Override
     public void destroy() {
         zookeeperClient.close();
+    }
+
+    @Override
+    public ZookeeperClient getClient() {
+        return this.zookeeperClient;
     }
 }
