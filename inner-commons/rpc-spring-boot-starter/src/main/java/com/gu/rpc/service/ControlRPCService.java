@@ -1,19 +1,18 @@
 package com.gu.rpc.service;
 
-
 import com.google.protobuf.Any;
 import com.gu.rpc.ControlRPCGrpc;
 import com.gu.rpc.RpcMessage;
 import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
-import net.devh.boot.grpc.server.service.GrpcService;
-import org.springframework.security.access.annotation.Secured;
 
+/**
+ * @author FastG
+ * @date 2020/11/8 16:02
+ */
 @Slf4j
-@GrpcService
 public abstract class ControlRPCService extends ControlRPCGrpc.ControlRPCImplBase {
 
-    @Secured("ROLE_GREET")
     @Override
     public StreamObserver<RpcMessage.SendRequest> streamSend(StreamObserver<RpcMessage.SendResponse> responseObserver) {
         return new StreamObserver<RpcMessage.SendRequest>() {
@@ -33,7 +32,6 @@ public abstract class ControlRPCService extends ControlRPCGrpc.ControlRPCImplBas
         };
     }
 
-    @Secured("ROLE_GREET")
     @Override
     public StreamObserver<RpcMessage.CloseRequest> streamClose(
             StreamObserver<RpcMessage.CloseResponse> responseObserver) {
@@ -54,11 +52,25 @@ public abstract class ControlRPCService extends ControlRPCGrpc.ControlRPCImplBas
         };
     }
 
-    @Secured("ROLE_GREET")
+
     @Override
     public void any(Any request, StreamObserver<Any> responseObserver) {
         super.any(request, responseObserver);
         responseObserver.onNext(doAnything(request));
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void send(RpcMessage.SendRequest request, StreamObserver<RpcMessage.SendResponse> responseObserver) {
+        super.send(request, responseObserver);
+        responseObserver.onNext(this.doSend(request));
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void close(RpcMessage.CloseRequest request, StreamObserver<RpcMessage.CloseResponse> responseObserver) {
+        super.close(request, responseObserver);
+        responseObserver.onNext(this.doClose(request));
         responseObserver.onCompleted();
     }
 
@@ -70,4 +82,7 @@ public abstract class ControlRPCService extends ControlRPCGrpc.ControlRPCImplBas
 
     protected abstract Any doAnything(Any any);
 
+    protected abstract RpcMessage.SendResponse doSend(RpcMessage.SendRequest request);
+
+    protected abstract RpcMessage.CloseResponse doClose(RpcMessage.CloseRequest request);
 }

@@ -111,6 +111,16 @@
 				<artifactId>network-spring-boot-starter</artifactId>
 				<version>${project.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>com.gu</groupId>
+				<artifactId>registry-spring-boot-starter</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.gu</groupId>
+				<artifactId>rpc-spring-boot-starter</artifactId>
+				<version>${project.version}</version>
+			</dependency>
 			<!-- Mysql Driver -->
 			<dependency>
 				<groupId>mysql</groupId>
