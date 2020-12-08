@@ -1,6 +1,10 @@
 package com.gu.common.zookeeper;
 
 import com.gu.common.properties.CuratorProperties;
+import com.gu.common.properties.GRpcClientProperties;
+import com.gu.common.properties.RegistryProperties;
+import com.gu.common.zookeeper.client.ZookeeperClient;
+import com.gu.common.zookeeper.client.impl.CuratorZookeeperClient;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.ensemble.EnsembleProvider;
@@ -32,21 +36,15 @@ import java.util.concurrent.ThreadFactory;
  * @create 2020/12/4 下午4:34
  */
 @Slf4j
-@Configuration
 @ConditionalOnClass({ZooKeeper.class, CuratorFramework.class})
-@EnableConfigurationProperties(CuratorProperties.class)
+@EnableConfigurationProperties({CuratorProperties.class, RegistryProperties.class, GRpcClientProperties.class})
 public class CuratorAutoConfiguration implements BeanFactoryAware {
-    private final CuratorProperties curatorProperties;
 
     private BeanFactory beanFactory;
 
-    public CuratorAutoConfiguration(CuratorProperties curatorProperties) {
-        this.curatorProperties = curatorProperties;
-    }
-
-    @Bean(initMethod = "start", destroyMethod = "close")
+    @Bean(initMethod = "start")
     @ConditionalOnMissingBean(CuratorFramework.class)
-    public CuratorFramework curatorFramework(RetryPolicy retryPolicy) {
+    public CuratorFramework curatorFramework(RetryPolicy retryPolicy,CuratorProperties curatorProperties) {
 
         final CuratorFrameworkFactory.Builder builder = CuratorFrameworkFactory.builder();
 
@@ -121,10 +119,15 @@ public class CuratorAutoConfiguration implements BeanFactoryAware {
 
     @Bean
     @ConditionalOnMissingBean(RetryPolicy.class)
-    public RetryPolicy retryPolicy() {
+    public RetryPolicy retryPolicy(CuratorProperties curatorProperties) {
         return new ExponentialBackoffRetry(curatorProperties.getBaseSleepTimeMs(), curatorProperties.getMaxRetries());
     }
 
+    @Bean
+    @ConditionalOnMissingBean(ZookeeperClient.class)
+    public ZookeeperClient zookeeperClient() {
+        return new CuratorZookeeperClient();
+    }
 
     @Override
     public void setBeanFactory(@Nonnull BeanFactory beanFactory) throws BeansException {

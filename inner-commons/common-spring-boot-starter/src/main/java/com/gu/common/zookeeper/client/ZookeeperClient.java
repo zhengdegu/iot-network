@@ -1,31 +1,58 @@
 package com.gu.common.zookeeper.client;
 
-import org.apache.curator.framework.api.CuratorWatcher;
-import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
-import org.apache.curator.framework.recipes.cache.TreeCacheListener;
-import org.apache.zookeeper.Watcher;
+import java.util.List;
 
 /**
+ * zookeeper client基本的操作逻辑
+ *
  * @author gu
  * @create 2020/12/4 下午4:50
  */
 public interface ZookeeperClient {
+    /**
+     * 创建节点
+     *
+     * @param path      路径
+     * @param ephemeral 是否临时
+     */
+    void create(String path, boolean ephemeral);
 
+    /**
+     * 创建节点 数据
+     *
+     * @param path      路径
+     * @param content   数据
+     * @param ephemeral 是否临时
+     */
+    void create(String path, byte[] content, boolean ephemeral);
 
-    String createPerNode(String path) throws Exception;
+    /**
+     * 删除
+     *
+     * @param path 路径
+     */
+    void delete(String path);
 
-    String createPerNode(String path, String content) throws Exception;
+    /**
+     * 获取指定节点数据
+     *
+     * @param path 路径
+     * @return 数据
+     */
+    byte[]  getContent(String path);
 
-    String createPerSeqNode(String path) throws Exception;
+    /**
+     * 获取孩子节点
+     *
+     * @param path 路径
+     * @return 孩子节点集合
+     */
+    List<String> getChildren(String path);
 
-    String createPerSeqNode(String path, String content) throws Exception;
-
-    String createEphNode(String path) throws Exception;
-
-    String createEphNode(String path, String content) throws Exception;
-
-    String createEphSeqNode(String path) throws Exception;
-
-    String createEphSeqNode(String path, String content) throws Exception;
-
+    /**
+     * 检查节点是否存在
+     * @param path 节点
+     * @return true
+     */
+    boolean checkExists(String path);
 }
